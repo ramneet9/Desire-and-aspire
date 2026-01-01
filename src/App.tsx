@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { setupScrollReveal } from "./reveal";
 
 function Navbar() {
@@ -38,21 +38,57 @@ function HomeSection({ onOpenCard }: HomeSectionProps) {
 }
 
 function AboutSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Use Intersection Observer to load video when it becomes visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isVideoLoaded) {
+            // Load video sources when visible
+            const sources = video.querySelectorAll("source");
+            sources.forEach((source) => {
+              if (source.dataset.src) {
+                source.src = source.dataset.src;
+              }
+            });
+            video.load();
+            setIsVideoLoaded(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: "50px" } // Start loading 50px before it's visible
+    );
+
+    observer.observe(video);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [isVideoLoaded]);
+
   return (
     <section id="about" className="section about">
       <div className="about-grid">
         <div className="about-media" aria-hidden="true">
           <video
+            ref={videoRef}
             className="about-video"
             poster="/vid-poster.jpg"
-            preload="metadata"
+            preload="none"
             autoPlay
             muted
             loop
             playsInline
           >
-            <source src="/vid.webm" type="video/webm" />
-            <source src="/vid.mp4" type="video/mp4" />
+            <source data-src="/vid.webm" type="video/webm" />
+            <source data-src="/vid.mp4" type="video/mp4" />
           </video>
         </div>
         <div className="about-text">
