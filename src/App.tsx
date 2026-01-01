@@ -44,12 +44,16 @@ function AboutSection() {
         <div className="about-media" aria-hidden="true">
           <video
             className="about-video"
-            src="/vid.mp4"
+            poster="/vid-poster.jpg"
+            preload="metadata"
             autoPlay
             muted
             loop
             playsInline
-          />
+          >
+            <source src="/vid.webm" type="video/webm" />
+            <source src="/vid.mp4" type="video/mp4" />
+          </video>
         </div>
         <div className="about-text">
           <h2>About DESIRE & ASPIRE </h2>
