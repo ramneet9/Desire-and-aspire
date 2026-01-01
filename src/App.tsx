@@ -45,20 +45,43 @@ function AboutSection() {
     const video = videoRef.current;
     if (!video) return;
 
+    // Function to load video
+    const loadVideo = () => {
+      if (isVideoLoaded) return;
+      
+      // Load video sources
+      const sources = video.querySelectorAll("source");
+      sources.forEach((source) => {
+        if (source.dataset.src) {
+          source.src = source.dataset.src;
+        }
+      });
+      video.load();
+      
+      // Try to play after loading (for autoplay)
+      video.play().catch(() => {
+        // Autoplay might be blocked, that's okay
+      });
+      
+      setIsVideoLoaded(true);
+    };
+
+    // Check if video is already visible (for above-the-fold content)
+    const rect = video.getBoundingClientRect();
+    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    
+    if (isVisible) {
+      // Video is already visible, load immediately
+      loadVideo();
+      return;
+    }
+
     // Use Intersection Observer to load video when it becomes visible
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !isVideoLoaded) {
-            // Load video sources when visible
-            const sources = video.querySelectorAll("source");
-            sources.forEach((source) => {
-              if (source.dataset.src) {
-                source.src = source.dataset.src;
-              }
-            });
-            video.load();
-            setIsVideoLoaded(true);
+          if (entry.isIntersecting) {
+            loadVideo();
             observer.disconnect();
           }
         });
@@ -87,7 +110,6 @@ function AboutSection() {
             loop
             playsInline
           >
-            <source data-src="/vid.webm" type="video/webm" />
             <source data-src="/vid.mp4" type="video/mp4" />
           </video>
         </div>
