@@ -103,7 +103,7 @@ function AboutSection() {
           <video
             ref={videoRef}
             className="about-video"
-            poster="/vid-poster.jpg"
+            poster="/logo.png"
             preload="none"
             autoPlay
             muted
